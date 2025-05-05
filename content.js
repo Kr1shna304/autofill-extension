@@ -1,20 +1,28 @@
-function selectDropdownOption(inputId, optionTitle) {
+function selectDropdownOption(inputId, optionTitle, maxRetries = 10, retryDelay = 500) {
     const input = document.getElementById(inputId);
     if (!input) return console.warn("Input not found: " + inputId);
 
     input.click();
 
-    setTimeout(() => {
+    let attempts = 0;
+
+    const trySelectOption = () => {
         const option = [...document.querySelectorAll("a[title]")]
             .find(el => el.title === optionTitle);
 
         if (option) {
             option.click();
             console.log(`Selected: ${optionTitle}`);
+        } else if (attempts < maxRetries) {
+            attempts++;
+            console.warn(`Retrying (${attempts}/${maxRetries}) for option: ${optionTitle}`);
+            setTimeout(trySelectOption, retryDelay);
         } else {
-            console.warn("Option not found: " + optionTitle);
+            console.warn("Option not found after retries: " + optionTitle);
         }
-    }, 500);
+    };
+
+    trySelectOption();
 }
 
 const fieldMap = [
